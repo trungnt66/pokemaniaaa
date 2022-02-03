@@ -1,0 +1,63 @@
+<div style="margin-bottom: 1rem; position: absolute; bottom: 20px; right: 20px; z-index: 100;">
+  <button *ngIf="!joinedTable" style="margin-right: 0.5rem" nz-button nzType="primary" nzShape="round"
+    (click)="joinTable()"><i nz-icon nzType="folder-add" nzTheme="outline"></i>Sẵn sàng</button>
+  <button *ngIf="canEdit" nz-button nzType="primary" nzShape="round" (click)="showChotSo()"><i nz-icon
+      nzType="folder-add" nzTheme="outline"></i>Chốt
+    sổ</button>
+
+</div>
+
+<div>
+</div>
+<nz-list nzBordered nzSize="small" style="margin-bottom: 5rem;" *ngIf="listPokerist && listPokerist.length">
+  <nz-list-item style="display: block;" *ngFor="let item of listPokerist">
+    <div style="margin-bottom: 0.5rem; text-align: center;">
+      <strong>
+        {{item.userName}}
+        <i *ngIf="item.isKey" nz-icon nzType="pushpin" nzTheme="outline"></i></strong> <br>
+      Buy in: {{item.buyInQuantity}} |
+      <ng-container *ngIf="item.returnMoney">
+        Đã trả: {{item.returnMoney}} chip |
+      </ng-container>
+      Balance: {{ item.balance }}
+      <ng-container *ngIf="canEdit">
+        <br>
+        <button style="margin-left: auto;" nz-button nzType="link" nzShape="round" nz-popconfirm
+          nzPopconfirmTitle="Load trụ mới cho {{item.userName}}?" nzPopconfirmPlacement="bottom"
+          (nzOnConfirm)="loadTru(item)">
+          Load Trụ
+        </button>
+        <button style="margin-left: auto;" nz-button nzType="link" nzShape="round" (click)="openPayBackModal(item)">
+          Trả Lại
+        </button>
+        <button *ngIf="currentUserIsKey && !item.isKey" style="margin-left: auto;" nz-button nzType="link"
+          nzShape="round" nz-popconfirm nzPopconfirmTitle="Thêm {{item.userName}} làm Key?"
+          nzPopconfirmPlacement="bottom" (nzOnConfirm)="nhuongKey(item.fireStoreId, item.userName)">
+          Thêm làm Key
+        </button>
+      </ng-container>
+    </div>
+  </nz-list-item>
+</nz-list>
+
+<nz-modal [nzOkLoading]="loading" [(nzVisible)]="isVisible" nzTitle="Trả lại" (nzOnCancel)="payBackCancel()"
+  (nzOnOk)="payBack()">
+  <ng-container *nzModalContent>
+    Số chip:
+    <nz-input-number [(ngModel)]="payBackQuantity" [nzSize]="'small'" [nzMin]="50" [nzMax]="500000" [nzStep]="50">
+    </nz-input-number>
+  </ng-container>
+</nz-modal>
+
+<nz-modal [nzOkLoading]="loading" [(nzVisible)]="chotSoVisible" nzTitle="Tạm tính chốt sổ"
+  (nzOnCancel)="chotSoVisible = false" (nzOnOk)="chotSo()" [nzOkDisabled]="!!tableBalance">
+  <ng-container *nzModalContent>
+    <!-- {{!tableBalance}} -->
+    Tổng số: {{tableBalance}}
+    <br>
+    <!-- Số lượng dương:  -->
+    Thư ký nhận: {{bankerBalance}}
+    <!-- <br>
+    Top Player: <strong>{{topPlayer.userName}}</strong> ({{topPlayer.balance}}) -->
+  </ng-container>
+</nz-modal>

@@ -1,0 +1,28 @@
+<button style="margin-bottom: 1rem; position: absolute; bottom: 20px; right: 20px; z-index: 100;" nz-button
+  nzType="primary" nzShape="round" (click)="showModelAddNew()"><i nz-icon nzType="usergroup-add"
+    nzTheme="outline"></i>Tạo
+  phòng</button>
+<div style="text-align: center;" *ngIf="loading">
+  <i nz-icon nzType="loading" style="margin: auto" nzTheme="outline" ></i>
+</div>
+<nz-list nzBordered nzSize="small" style="margin-bottom: 5rem;" *ngIf="showTable">
+  <nz-list-item style="display: block;" *ngFor="let item of listTable">
+    <div style="margin-bottom: 0.5rem; text-align: center;">
+      {{item.createdTime | date:'medium'}}
+    </div>
+    <div style="text-align: center;">
+      <button style="margin-left: auto;" nz-button nzType="link" nzShape="round" (click)="gotoTable(item.fireStoreId)">
+        {{!item.isEnd?'Chơi':'Xem'}}
+      </button>
+    </div>
+  </nz-list-item>
+  <!-- <nz-list-footer>Footer</nz-list-footer> -->
+</nz-list>
+
+<nz-modal [nzOkLoading]="loading" [(nzVisible)]="isVisible" nzTitle="Tạo bàn mới" (nzOnOk)="confirm()">
+  <ng-container *nzModalContent>
+    Tạo bàn mới vào lúc {{currentTime | date : 'medium'}}
+    <nz-input-number [(ngModel)]="buyIn" [nzSize]="'small'" [nzMin]="50" [nzMax]="5000" [nzStep]="50"></nz-input-number>
+
+  </ng-container>
+</nz-modal>
