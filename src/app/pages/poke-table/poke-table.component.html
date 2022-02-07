@@ -19,7 +19,7 @@
   <!-- <nz-list-footer>Footer</nz-list-footer> -->
 </nz-list>
 
-<nz-modal [nzOkLoading]="loading" [(nzVisible)]="isVisible" nzTitle="Tạo bàn mới" (nzOnOk)="confirm()">
+<nz-modal [nzOkLoading]="loading" [(nzVisible)]="isVisible" nzTitle="Tạo bàn mới" (nzOnOk)="confirm()" (nzOnCancel)="isVisible = false">
   <ng-container *nzModalContent>
     Tạo bàn mới vào lúc {{currentTime | date : 'medium'}}
     <nz-input-number [(ngModel)]="buyIn" [nzSize]="'small'" [nzMin]="50" [nzMax]="5000" [nzStep]="50"></nz-input-number>

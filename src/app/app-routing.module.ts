@@ -3,12 +3,29 @@ import { Routes, RouterModule } from '@angular/router';
 
 const routes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: '/welcome' },
-  { path: 'welcome', loadChildren: () => import('./pages/welcome/welcome.module').then(m => m.WelcomeModule) },
-  { path: 'pokemon-table', loadChildren: () => import('./pages/poke-table/poke-table.module').then(m => m.PokeTableModule) }
+  {
+    path: 'welcome',
+    loadChildren: () =>
+      import('./pages/welcome/welcome.module').then((m) => m.WelcomeModule),
+  },
+  {
+    path: 'pokemon-table',
+    loadChildren: () =>
+      import('./pages/poke-table/poke-table.module').then(
+        (m) => m.PokeTableModule
+      ),
+  },
+  {
+    path: 'weekly-report',
+    loadChildren: () =>
+      import('./pages/weekly-report/weekly-report.module').then(
+        (m) => m.WeeklyReportModule
+      ),
+  },
 ];
 
 @NgModule({
   imports: [RouterModule.forRoot(routes)],
-  exports: [RouterModule]
+  exports: [RouterModule],
 })
-export class AppRoutingModule { }
+export class AppRoutingModule {}

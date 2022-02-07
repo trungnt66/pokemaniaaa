@@ -1,0 +1,34 @@
+<!-- <p>{{detailDataSource | json}}</p> -->
+
+<table *ngIf="detailDataSource">
+  <tr>
+    <th>Name</th>
+    <th *ngFor="let item of detailDataSource.tables">
+      {{item.createdTime | date: 'EEEE, h:mm:ss a'}}
+    </th>
+    <th>Total</th>
+  </tr>
+  <!-- {{pokeristKey}} -->
+  <ng-container *ngIf="detailDataSource.pokerist">
+    <tr *ngFor="let key of pokeristKey" [ngClass]="{'bg-green': detailDataSource.pokerist[key].isBanked || detailDataSource.pokerist[key].userName==='banker', 'can-bank': canBank(detailDataSource.pokerist[key].userName, detailDataSource.pokerist[key].isBanked)}"
+    nz-popconfirm
+    nzPopconfirmTitle="Đánh dấu là đã bank?"
+    [nzCondition]=" !canBank(detailDataSource.pokerist[key].userName, detailDataSource.pokerist[key].isBanked)"
+    (nzOnConfirm)=" canBank(detailDataSource.pokerist[key].userName, detailDataSource.pokerist[key].isBanked) && confirm(detailDataSource.pokerist[key])"
+    >
+      <td>{{detailDataSource.pokerist[key].userName}} <i *ngIf="detailDataSource.pokerist[key].userName==='banker'"
+          nz-icon nzType="dollar-circle" nzTheme="outline"></i></td>
+      <td *ngFor="let table of detailDataSource.tables">
+        {{detailDataSource.pokerist[key]['tables'][table.id]?.balance || 0 | json}}
+      </td>
+      <td>
+        {{detailDataSource.pokerist[key].totalBalance}}
+      </td>
+    </tr>
+    <tr>
+      <td style="text-align: left" [attr.colspan]="detailDataSource.tables.length+1"><b>Total:</b> </td>
+      <td><b>{{totalBalance}}</b></td>
+    </tr>
+  </ng-container>
+
+</table>

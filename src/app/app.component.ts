@@ -36,7 +36,12 @@ export class AppComponent {
     },welcome: {
       url: '/welcome',
       header: 'Profiles',
+    },weeklyReport: {
+      url: '/weekly-report',
+      header: 'Report',
     },
+
+    
   };
 
   public header = '';
@@ -61,6 +66,10 @@ export class AppComponent {
           this.checkAndSetGlobalUser(this.socialUser);
         }
       });
+    }
+
+    if(!this.header) {
+      this.goToRouter(this.routing.welcome);
     }
   }
 

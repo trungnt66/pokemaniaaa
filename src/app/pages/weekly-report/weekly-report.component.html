@@ -1,0 +1,8 @@
+<nz-list nzBordered nzSize="small" style="margin-bottom: 5rem;" *ngIf="listReport && listReport.length">
+  <nz-list-item style="display: block;" *ngFor="let item of listReport">
+    <button style="margin-left: auto;" nz-button nzType="link" nzShape="round" (click)="gotoReport(item.fireStoreId)">
+      {{item.name}}
+    </button>
+  </nz-list-item>
+  <!-- <nz-list-footer>Footer</nz-list-footer> -->
+</nz-list>

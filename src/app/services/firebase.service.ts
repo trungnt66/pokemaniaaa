@@ -15,6 +15,7 @@ import {
   runTransaction,
   setDoc,
   writeBatch,
+  documentId,
 } from 'firebase/firestore';
 import AppConstant from '../constants/app.constant';
 
@@ -130,7 +131,6 @@ export class FirebaseService {
 
   public async getDataDetailTable(tableId: string) {
     try {
-      debugger;
       const queryGetTableById = doc(this.db, 'table', tableId);
 
       const tableSnapshot = await getDoc(queryGetTableById);
@@ -143,7 +143,7 @@ export class FirebaseService {
       );
       const playerSnapshot = await getDocs(queryGetListUser);
       const players: any = [];
-      debugger;
+
       playerSnapshot.forEach((doc) => {
         players.push({ ...doc.data(), fireStoreId: doc.id });
       });
@@ -315,38 +315,90 @@ export class FirebaseService {
         const weekey = this.getWeekKeys(createdTime);
         const weeklyReportRef = doc(this.db, 'weeklyReport', weekey);
         const weeklyReport = await transaction.get(weeklyReportRef);
-        const pokeristObj:any = {}
-        for (const item of pokeristFinal) {
-          pokeristObj[item.userId] =  {
-            userName: item.userName,
-            userId: item.userId,
-            userFireStoreId: item.fireStoreId,
-            balance: item.balance,
-          };
-        }
+
         if (!weeklyReport.exists()) {
+          const newPokeristObj: any = {};
+          for (const item of pokeristFinal) {
+            newPokeristObj[item.userId] = {
+              userName: item.userName,
+              userId: item.userId,
+              userFireStoreId: item.fireStoreId,
+              tables: {
+                [tableId]: {
+                  createdTime: createdTime,
+                  balance: item.balance,
+                },
+              },
+            };
+          }
           // TODO: CREATE NEW REPORT
           await transaction.set(weeklyReportRef, {
-            table: [
+            pokerist: newPokeristObj,
+            createdTime: new Date(),
+            tables: [
               {
-                tableId: tableId,
-                createdTime: createdTime,
-                pokerist: pokeristObj,
+                id: tableId,
+                reatedTime: createdTime,
               },
             ],
           });
         } else {
           // TODO: UPDATE EXISTING REPORT
-          const dataWeeklyTable = weeklyReport.data()['table'];
-          dataWeeklyTable.unshift({
-            tableId: tableId,
-            createdTime: createdTime,
-            pokerist: pokeristObj,
+          // existing pokerist
+          const DataWeekly = weeklyReport.data();
+          const dataWeeklyPokerist = DataWeekly['pokerist'];
+          const reportListTable = DataWeekly['tables'];
+          const pokeristInReportKeys = Object.keys(dataWeeklyPokerist);
+
+          const newPokeristObj: any = {
+            ...JSON.parse(JSON.stringify(dataWeeklyPokerist)),
+          };
+
+          // create new pokerist report
+          for (const item of pokeristFinal) {
+            const tableHistoryForUser =
+              dataWeeklyPokerist[item.userId]?.tables || {};
+            newPokeristObj[item.userId] = {
+              userName: item.userName,
+              userId: item.userId,
+              userFireStoreId: item.fireStoreId,
+              tables: {
+                ...tableHistoryForUser,
+                [tableId]: {
+                  createdTime: createdTime,
+                  balance: item.balance,
+                },
+              },
+            };
+          }
+
+          // add existing pokerist played and not in list above
+
+          // for (const key of pokeristInReportKeys) {
+          //   const item = dataWeeklyPokerist[key];
+          //   item.tables[tableId] = {
+          //     createdTime: createdTime,
+          //     balance: newPokeristObj[key]?.tables[tableId]?.balance || 0,
+          //   };
+          // }
+
+          // for (const key of Object.keys(newPokeristObj)) {
+          //   if (!pokeristInReportKeys.includes(key)) {
+          //     dataWeeklyPokerist[key] = {
+          //       ...JSON.parse(JSON.stringify(newPokeristObj[key])),
+          //     };
+          //   }
+          // }
+
+          reportListTable.push({
+            id: tableId,
+            reatedTime: createdTime,
           });
 
           await transaction.update(weeklyReportRef, {
-            table: dataWeeklyTable
-          })
+            pokerist: newPokeristObj,
+            tables: reportListTable,
+          });
         }
         // TODO: UPDATE TABLE TO END;
         const tableRef = doc(this.db, 'table', tableId);
@@ -356,9 +408,9 @@ export class FirebaseService {
 
         // TODO: UPDATE pokerist list after ajust;
         // const batch:any = [];
-        const batch = writeBatch(this.db)
+        const batch = writeBatch(this.db);
         for (const item of pokeristFinal) {
-          if(!item.ajusted) {
+          if (!item.ajusted) {
             continue;
           }
           const itemRef = doc(this.db, 'pokeristInTable', item.fireStoreId);
@@ -376,6 +428,75 @@ export class FirebaseService {
     } catch (e) {
       console.error(e);
       return 'error';
+    }
+  }
+
+  async getListReports() {
+    try {
+      const queryGetById = query(
+        collection(this.db, 'weeklyReport'),
+        orderBy('createdTime', 'desc')
+      );
+      const querySnapshot = await getDocs(queryGetById);
+      let listReport: any = [];
+      querySnapshot.forEach((doc) => {
+        const [year, month, week] = doc.id.split('zzz');
+        listReport.push({
+          fireStoreId: doc.id,
+          name: `${year} - ${Number(month) + 1} - ${Number(week) + 1}`,
+        });
+        return;
+      });
+      return listReport;
+    } catch (error) {
+      return 'error';
+    }
+  }
+
+  async getReportDetail(id: string | null) {
+    if(!id) {
+      return 'error';
+    }
+
+    try {
+      const queryGetTableById = doc(this.db, 'weeklyReport', id);
+
+      const snapshot = await getDoc(queryGetTableById);
+
+      return snapshot.data();
+    } catch (error) {
+      return 'error'        
+    }
+  }
+
+  async bankedPokerist (pokeristId: any, reportId: string) {
+    if(!reportId || !pokeristId) {
+      return 'error';
+    }
+
+    // const pokeristNew = JSON.parse(JSON.stringify(pokerist)); 
+
+    try {
+      const docref = doc(this.db, 'weeklyReport', reportId);
+
+      const snapshot = await getDoc(docref);
+
+      if(snapshot.exists()) {
+        const newAllPokerist = snapshot.data()['pokerist'];
+        newAllPokerist[pokeristId]['isBanked'] = true;
+        await updateDoc(docref, {
+          pokerist: newAllPokerist,
+        });
+
+        return 'success';
+      } 
+      else {
+        return 'error';
+      }
+
+      return snapshot.data();
+    } catch (error) {
+      return 'error'        
     }
   }
 }

@@ -16,11 +16,18 @@
       <li nz-menu-item nz-tooltip nzTooltipPlacement="right" (click)="goToRouter(routing.playTable)">
         <i nz-icon nzType="play-circle" nzTheme="outline"></i>
         <span>Play Pokemon</span>
+      </li> 
+      
+      <li nz-menu-item nz-tooltip nzTooltipPlacement="right" (click)="goToRouter(routing.weeklyReport)">
+        <i nz-icon nzType="bar-chart" nzTheme="outline"></i>
+        <span>Xem báo cáo tuần</span>
       </li>
-      <li nz-menu-item nz-tooltip nzTooltipPlacement="right" (click)="signOut()">
+
+      
+      <!-- <li nz-menu-item nz-tooltip nzTooltipPlacement="right" (click)="signOut()">
         <i nz-icon nzType="logout"></i>
         <span>Log Out</span>
-      </li>
+      </li> -->
     </ul>
   </nz-sider>
   <nz-layout>
