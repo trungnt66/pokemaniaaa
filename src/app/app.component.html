@@ -1,4 +1,4 @@
-<nz-layout class="app-layout" *ngIf="socialUser && socialUser.id">
+<nz-layout class="app-layout" *ngIf="userFbService.userFire && userFbService.userFire.id">
   <nz-sider class="menu-sidebar" nzCollapsible nzWidth="256px" nzBreakpoint="md" [(nzCollapsed)]="isCollapsed"
     [nzTrigger]="null">
     <div class="sidebar-logo">
@@ -8,11 +8,6 @@
       </a>
     </div>
     <ul nz-menu nzTheme="dark" nzMode="inline" [nzInlineCollapsed]="isCollapsed">
-      <li nz-menu-item nz-tooltip nzTooltipPlacement="right" nzSelected (click)="goToRouter(routing.welcome)">
-        <img nz-icon src="{{socialUser.photoUrl}}" width="16px" height="16px" alt="logo">
-        <span>{{socialUser.name}}</span>
-      </li>
-
       <li nz-menu-item nz-tooltip nzTooltipPlacement="right" (click)="goToRouter(routing.playTable)">
         <i nz-icon nzType="play-circle" nzTheme="outline"></i>
         <span>Play Pokemon</span>
@@ -21,13 +16,12 @@
       <li nz-menu-item nz-tooltip nzTooltipPlacement="right" (click)="goToRouter(routing.weeklyReport)">
         <i nz-icon nzType="bar-chart" nzTheme="outline"></i>
         <span>Xem báo cáo tuần</span>
-      </li>
-
+      </li>  
       
-      <!-- <li nz-menu-item nz-tooltip nzTooltipPlacement="right" (click)="signOut()">
-        <i nz-icon nzType="logout"></i>
-        <span>Log Out</span>
-      </li> -->
+      <li nz-menu-item nz-tooltip nzTooltipPlacement="right" (click)="signOut()">
+        <i nz-icon nzType="bar-chart" nzTheme="outline"></i>
+        <span>Logout</span>
+      </li>
     </ul>
   </nz-sider>
   <nz-layout>
@@ -48,9 +42,26 @@
   </nz-layout>
 </nz-layout>
 
-<button nz-button nzType="primary" (click)="loginWithFacebook()" *ngIf="!socialUser || !socialUser.id"
+<!-- <button nz-button nzType="primary" (click)="loginWithFacebook()" *ngIf="!socialUser || !socialUser.id"
   style="margin: auto; margin-top: 5rem;" nzShape="round">
   <i nz-icon nzType="facebook" nzTheme="outline"></i>
   Login With Facebook
 
-</button>
+</button> -->
+
+<div style="margin: 5rem auto"  *ngIf="!userFbService.userFire || !userFbService.userFire.id">
+  <input
+    placeholder='Input Player Name'
+    nz-input
+    [(ngModel)]="autoCompletePlayer"
+    [nzAutocomplete]="auto"
+    (ngModelChange)="autoCompletePlayerChanging($event)"
+  />
+  <nz-autocomplete [nzDataSource]="listUserName" #auto></nz-autocomplete>
+  <div style="color: yellow;" [hidden]="!warnUserNotInTable">{{warnUserNotInTable}}</div>
+  
+  <button nz-button nzType="primary" (click)="loginToSystem()"
+    style="margin: auto; margin-top: 1rem;" nzShape="round">
+    Login To System
+  </button>
+</div>

@@ -1,13 +1,8 @@
 import { Component } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import {
-  FacebookLoginProvider,
-  SocialAuthService,
-  SocialUser,
-} from 'angularx-social-login';
+import { FormGroup } from '@angular/forms';
+import { Router } from '@angular/router';
 import { FirebaseService } from './services/firebase.service';
 import { UserLoginServiceService } from './services/user-login-service.service';
-import {Router} from '@angular/router';
 
 @Component({
   selector: 'app-root',
@@ -18,16 +13,13 @@ export class AppComponent {
   isCollapsed = false;
 
   constructor(
-    private formBuilder: FormBuilder,
-    private socialAuthService: SocialAuthService,
-    private userFbService: UserLoginServiceService,
+    public userFbService: UserLoginServiceService,
     private firebaseService: FirebaseService,
     private router: Router,
   ) {
     console.log(this.isLoggedin);
   }
   loginForm: FormGroup | null = null;
-  socialUser: SocialUser | null = null;
   isLoggedin: boolean = false;
   public readonly routing = {
     playTable: {
@@ -45,70 +37,44 @@ export class AppComponent {
   };
 
   public header = '';
+  autoCompletePlayer = ''
+  listUsers :any[] = []
+  listUserName: string[] = []
+  unsubUser: any = null;
+  autoCompletePlayerChanging(value: string) {
+    const listName: any[] = this.listUsers.map(x=>x.name) || []
+    this.listUserName = listName.filter((x:string)=>!value ||  x && x.toLowerCase().includes(value.toLowerCase()));
+  }
+  async subscribeUserChange() {
+    this.unsubUser = await this.firebaseService.subscribeAllUser((users: any) => {
+      this.listUsers = users;
+      this.autoCompletePlayerChanging(this.autoCompletePlayer);
+    });
+  }
 
   ngOnInit() {
-    // this.loginForm = this.formBuilder.group({
-    //   email: ['', Validators.required],
-    //   password: ['', Validators.required],
-    // });
-
-    if (this.userFbService.userFb) {
-      this.socialUser = this.userFbService.userFb;
-      this.isLoggedin = true;
-      this.checkAndSetGlobalUser(this.socialUser);
-    } else {
-      this.socialAuthService.authState.subscribe((user) => {
-        this.userFbService.userFb = user;
-        this.socialUser = user;
-        this.isLoggedin = user != null;
-        this.socialAuthService.authState;
-        if (user) {
-          this.checkAndSetGlobalUser(this.socialUser);
-        }
-      });
-    }
-
     if(!this.header) {
       this.goToRouter(this.routing.welcome);
     }
+
+    this.subscribeUserChange();
+    this.checkAndSetGlobalUser(this.userFbService.userFb)
   }
 
-  async checkAndSetGlobalUser(user: SocialUser | null) {
+  async checkAndSetGlobalUser(user: any | null) {
     if (!user) {
       return;
     }
     try {
       const userFromFirebase = await this.firebaseService.getUserById(user.id);
-      if(userFromFirebase === 'error') {
-        return;
-      }
-
-      if (userFromFirebase) {
+      if (userFromFirebase !== 'error' && userFromFirebase && typeof userFromFirebase === 'object') {
         this.userFbService.userFire = userFromFirebase;
       } else {
-        await this.firebaseService.addUser({
-          id: user.id,
-          email: user.email,
-          name: user.name,
-        });
-
-        // re get data from firebase
-        const userFromFirebase = await this.firebaseService.getUserById(user.id);
-        if(userFromFirebase === 'error') {
-          return;
-        }
-  
-        if (userFromFirebase) {
-          this.userFbService.userFire = userFromFirebase;
-        }
+        this.userFbService.userFire = null;
       }
     } catch (error) {
-      console.error(error);
+      this.userFbService.userFire = null
     }
-  }
-
-  loginWithFacebook(): void {
-    this.socialAuthService.signIn(FacebookLoginProvider.PROVIDER_ID);
   }
 
   goToRouter({ url, header }: any): void {
@@ -117,10 +83,44 @@ export class AppComponent {
       this.router.navigateByUrl(url)
     }
   }
+  warnUserNotInTable = ''
+  async loginToSystem() {
+    const isHasUser = this.listUsers.some(x=>x.name === this.autoCompletePlayer);
+
+    if(!isHasUser && !this.warnUserNotInTable) {
+      this.warnUserNotInTable = 'Không tìm thấy user này, bạn sẽ vẫn muốn tiếp tục?';
+      return;
+    }
+
+    let addUserResponse = '';
+    const newUser = {
+      id: this.autoCompletePlayer,
+      name: this.autoCompletePlayer,
+    }
+
+    if(this.warnUserNotInTable) {
+      addUserResponse = await this.firebaseService.addUser(newUser);
+      if(addUserResponse != 'error')
+      this.warnUserNotInTable = '';
+    }
+
+    if(addUserResponse === 'error') {
+      alert('error when adding user')
+      return;
+    }
+    this.userFbService.userFb = newUser;
+    this.isLoggedin = true;
+    if (newUser) {
+      await this.checkAndSetGlobalUser(newUser);
+    }
+
+    if(!this.userFbService.userFire) {
+      alert('error');
+    }
+  }
 
   signOut(): void {
-    this.socialUser = null;
     this.userFbService.userFb = null;
-    this.socialAuthService.signOut();
+    this.userFbService.userFire = null;
   }
 }

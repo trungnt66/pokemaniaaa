@@ -1,22 +1,23 @@
-import { NgModule } from '@angular/core';
-import { BrowserModule } from '@angular/platform-browser';
-
-import { AppRoutingModule } from './app-routing.module';
-import { AppComponent } from './app.component';
-import { NZ_I18N } from 'ng-zorro-antd/i18n';
-import { vi_VN } from 'ng-zorro-antd/i18n';
 import { registerLocaleData } from '@angular/common';
-import vi from '@angular/common/locales/vi';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
+import vi from '@angular/common/locales/vi';
+import { NgModule } from '@angular/core';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { IconsProviderModule } from './icons-provider.module';
+import { FacebookLoginProvider, SocialAuthServiceConfig, SocialLoginModule } from 'angularx-social-login';
+import { NzAutocompleteModule } from 'ng-zorro-antd/auto-complete';
+import { NzButtonModule } from 'ng-zorro-antd/button';
+import { NZ_I18N, vi_VN } from 'ng-zorro-antd/i18n';
+import { NzInputModule } from 'ng-zorro-antd/input';
 import { NzLayoutModule } from 'ng-zorro-antd/layout';
 import { NzMenuModule } from 'ng-zorro-antd/menu';
-import { NzButtonModule } from 'ng-zorro-antd/button';
-import { UserLoginServiceService } from './services/user-login-service.service'
-import { FacebookLoginProvider, SocialAuthServiceConfig, SocialLoginModule } from 'angularx-social-login';
+import { AppRoutingModule } from './app-routing.module';
+import { AppComponent } from './app.component';
+import { IconsProviderModule } from './icons-provider.module';
 import { FirebaseService } from './services/firebase.service';
+import { UserLoginServiceService } from './services/user-login-service.service';
+
 
 registerLocaleData(vi);
 
@@ -36,6 +37,8 @@ registerLocaleData(vi);
     SocialLoginModule,
     NzMenuModule,
     NzButtonModule,
+    NzAutocompleteModule,
+    NzInputModule,
   ],
   providers: [{ provide: NZ_I18N, useValue: vi_VN }, {
     provide: 'SocialAuthServiceConfig',

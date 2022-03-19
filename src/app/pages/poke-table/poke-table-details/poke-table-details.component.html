@@ -1,9 +1,10 @@
 <div style="margin-bottom: 1rem; position: absolute; bottom: 20px; right: 20px; z-index: 100;">
   <button *ngIf="!joinedTable" style="margin-right: 0.5rem" nz-button nzType="primary" nzShape="round"
-    (click)="joinTable()"><i nz-icon nzType="folder-add" nzTheme="outline"></i>Sẵn sàng</button>
-  <button *ngIf="canEdit" nz-button nzType="primary" nzShape="round" (click)="showChotSo()"><i nz-icon
-      nzType="folder-add" nzTheme="outline"></i>Chốt
-    sổ</button>
+    (click)="joinTable(userService.userFb)"><i nz-icon nzType="folder-add" nzTheme="outline"></i>Sẵn sàng</button>
+  <button *ngIf="canEdit" style="margin-right: 0.5rem" nz-button nzType="primary" nzShape="round" (click)="showChotSo()"><i nz-icon
+      nzType="folder-add" nzTheme="outline"></i>Chốt sổ</button>
+  <button *ngIf="canEdit" nz-button nzType="primary" nzShape="round" (click)="showThemUser()"><i nz-icon
+        nzType="folder-add" nzTheme="outline"></i>Thêm bạn chơi</button>
 
 </div>
 
@@ -59,5 +60,24 @@
     Thư ký nhận: {{bankerBalance}}
     <!-- <br>
     Top Player: <strong>{{topPlayer.userName}}</strong> ({{topPlayer.balance}}) -->
+  </ng-container>
+</nz-modal>
+
+<nz-modal [nzOkLoading]="loading" [(nzVisible)]="themUserVisible" nzTitle="Thêm Player" (nzOnCancel)="addPlayerInTableCancel()"
+  [nzOkDisabled]="!autoCompletePlayer"
+  (nzOnOk)="addPlayerInTable()">
+  <ng-container *nzModalContent>
+    <div>
+      <input
+        placeholder='Input Player Name'
+        nz-input
+        [(ngModel)]="autoCompletePlayer"
+        [nzAutocomplete]="auto"
+        (ngModelChange)="autoCompletePlayerChanging($event)"
+      />
+      <nz-autocomplete [nzDataSource]="listUserName" #auto></nz-autocomplete>
+    </div>
+    <span style="color: red;" [hidden]="!errorUserAlreadyInTable">{{errorUserAlreadyInTable}}</span>
+    <span style="color: yellow;" [hidden]="!warnUserNotInTable">{{warnUserNotInTable}}</span>
   </ng-container>
 </nz-modal>

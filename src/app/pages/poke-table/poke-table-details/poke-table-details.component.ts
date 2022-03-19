@@ -14,7 +14,7 @@ export class PokeTableDetailsComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private api: FirebaseService,
     private message: NzMessageService,
-    private userService: UserLoginServiceService
+    public userService: UserLoginServiceService
   ) {
     this.userRef = userService.userFb;
   }
@@ -45,6 +45,10 @@ export class PokeTableDetailsComponent implements OnInit, OnDestroy {
     if (typeof this.unsubPokerist === 'function') {
       this.unsubPokerist();
     }
+
+    if (typeof this.unsubUser === 'function') {
+      this.unsubUser();
+    }
   }
 
   async initFlow(skipSubscription?:boolean) {
@@ -60,14 +64,14 @@ export class PokeTableDetailsComponent implements OnInit, OnDestroy {
     // this.listPokerist = result.players;
     this.tableDetail = result.table;
     if(!skipSubscription) {
-      this.subscribePokeristChange();
+      await this.subscribePokeristChange();
     }
   }
 
   unsubPokerist: any = null;
 
   async subscribePokeristChange() {
-    this.unsubPokerist = await this.api.subscribePokerist((players: any) => {
+    this.unsubPokerist = await this.api.subscribePokerist(async (players: any) => {
       this.listPokerist = players;
       const keyUsers =
         (this.listPokerist && this.listPokerist.filter((x: any) => x.isKey)) ||
@@ -77,12 +81,36 @@ export class PokeTableDetailsComponent implements OnInit, OnDestroy {
         this.listPokerist.some(
           (x: any) => x.userId === this.userService.userFb.id
         );
-
-      debugger;
       this.currentUserIsKey =
         keyUsers &&
         keyUsers.some((x: any) => x.userId === this.userService.userFb.id);
+        
+      await this.subscribeUserChange();
     }, this.tableId);
+  }
+
+  listUsers :any[] = []
+
+  public listUserName: string[] = []
+  
+  unsubUser: any = null;
+  async subscribeUserChange() {
+    if(this.unsubUser && typeof this.unsubUser === 'function') {
+      this.unsubUser();
+    }
+    this.unsubUser = await this.api.subscribeAllUser((users: any) => {
+      this.listUsers = users;
+      this.autoCompletePlayerChanging(this.autoCompletePlayer);
+    });
+  }
+
+  autoCompletePlayerChanging(value: string) {
+    const listName: any[] = this.listUsers.map(x=>x.name) || []
+    debugger
+    this.listUserName = listName.filter((x:string)=>!value || (x && x.toLowerCase().includes(value.toLowerCase()))).filter(nX=> {
+      return this.listPokerist && !this.listPokerist.some((item:any)=>item.userName === nX);
+    });
+    this.checkUserDaTrongBan();
   }
 
   calculateBalance(
@@ -153,9 +181,9 @@ export class PokeTableDetailsComponent implements OnInit, OnDestroy {
     this.isVisible = false;
   }
 
-  async joinTable() {
+  async joinTable(user:any = null) {
     const res = await this.api.joinTable(
-      this.userService.userFb,
+      user,
       this.tableId,
       this.tableDetail.buyInUnit
     );
@@ -178,6 +206,64 @@ export class PokeTableDetailsComponent implements OnInit, OnDestroy {
     }
   }
 
+  addPlayerInTableCancel() {
+    this.cleanAddUserTable();
+  }
+  cleanAddUserTable() {
+    this.themUserVisible = false;
+    this.warnUserNotInTable = '';
+    this.autoCompletePlayer = '';
+    this.errorUserAlreadyInTable = '';
+  }
+
+  warnUserNotInTable = '';
+  errorUserAlreadyInTable = '';
+  checkUserDaTrongBan() {
+    if(this.listPokerist.some((x: any)=>x && x.userName && this.autoCompletePlayer && x.userName.toLowerCase().trim() === this.autoCompletePlayer.toLocaleLowerCase().trim())) {
+      this.errorUserAlreadyInTable = 'User đã ở trong bàn rồi';
+      return;
+    } else {
+      this.errorUserAlreadyInTable = ''
+    }
+  }
+  async addPlayerInTable() {
+    const isHasUser = this.listUsers.some(x=>x.name === this.autoCompletePlayer);
+    this.checkUserDaTrongBan();
+    if(this.errorUserAlreadyInTable) {
+      return;
+    }
+
+
+    if(!isHasUser && !this.warnUserNotInTable) {
+      this.warnUserNotInTable = 'Không tìm thấy user này bạn vẫn muốn thêm user này vào bàn?';
+      return;
+    }
+
+    let addUserResponse = '';
+    const newUser = {
+      id: this.autoCompletePlayer,
+      name: this.autoCompletePlayer,
+    }
+
+    if(this.warnUserNotInTable) {
+      addUserResponse = await this.api.addUser(newUser);
+    }
+
+    if(addUserResponse === 'error') {
+      return;
+    }
+
+    this.joinTable(newUser);
+    this.cleanAddUserTable();
+    this.themUserVisible = false;
+  }
+
+  changingPlayer($event: any) {
+    
+  }
+
+  autoCompletePlayer = ''
+
   payBackCancel() {
     this.isVisible = false;
     this.payBackRef = null;
@@ -199,6 +285,12 @@ export class PokeTableDetailsComponent implements OnInit, OnDestroy {
     this.chotSoVisible = true;
   }
 
+  themUserVisible = false;
+  showThemUser() {
+    
+    this.themUserVisible = true;
+  }
+
   async chotSo() {
     this.listPokeristTamTinh.push({
       userName: 'banker',
@@ -211,7 +303,7 @@ export class PokeTableDetailsComponent implements OnInit, OnDestroy {
       this.message.error('Lỗi hệ thống!');
     } else {
       this.message.success('Chốt sổ thành công!');
-      this.initFlow();
+      this.initFlow(true);
     }
 
     this.chotSoVisible = false;

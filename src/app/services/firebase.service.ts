@@ -1,21 +1,8 @@
 import { Injectable } from '@angular/core';
 import { initializeApp } from 'firebase/app';
 import {
-  collection,
-  getDocs,
-  addDoc,
-  getFirestore,
-  where,
-  query,
-  updateDoc,
-  orderBy,
-  doc,
-  getDoc,
-  onSnapshot,
-  runTransaction,
-  setDoc,
-  writeBatch,
-  documentId,
+  addDoc, collection, doc,
+  getDoc, getDocs, getFirestore, onSnapshot, orderBy, query, runTransaction, updateDoc, where, writeBatch
 } from 'firebase/firestore';
 import AppConstant from '../constants/app.constant';
 
@@ -65,7 +52,7 @@ export class FirebaseService {
 
   public async addUser(user: any) {
     if (!user) {
-      return;
+      return 'error';
     }
     try {
       const docRef = await addDoc(collection(this.db, 'users'), {
@@ -74,8 +61,10 @@ export class FirebaseService {
       });
 
       console.log('Document written with ID: ', docRef.id);
+      return docRef.id;
     } catch (e) {
       console.error('Error adding document: ', e);
+      return 'error';
     }
   }
 
@@ -159,6 +148,21 @@ export class FirebaseService {
     const queryGetListUser = query(
       collection(this.db, 'pokeristInTable'),
       where('tableId', '==', tableId)
+    );
+
+    return onSnapshot(queryGetListUser, (userSnapshot) => {
+      const users: any = [];
+      userSnapshot.forEach((doc) => {
+        users.push({ ...doc.data(), fireStoreId: doc.id });
+      });
+      callback(users);
+    });
+  }
+
+  public async subscribeAllUser(callback: Function,) {
+    // get player in table
+    const queryGetListUser = query(
+      collection(this.db, 'users'),
     );
 
     return onSnapshot(queryGetListUser, (playerSnapshot) => {
@@ -494,7 +498,6 @@ export class FirebaseService {
         return 'error';
       }
 
-      return snapshot.data();
     } catch (error) {
       return 'error'        
     }
