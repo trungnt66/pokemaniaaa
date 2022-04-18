@@ -193,7 +193,10 @@ export class PokeTableDetailsComponent implements OnInit, OnDestroy {
     }
 
     // this.listPokerist.unshift(res);
-    this.message.success('Join bàn thành công');
+    this.message.success('Thêm player thành công');
+    setTimeout(() => {
+      this.themUserVisible = true;
+    }, 500);
     // this.joinedTable = true;
   }
 
@@ -287,17 +290,10 @@ export class PokeTableDetailsComponent implements OnInit, OnDestroy {
 
   themUserVisible = false;
   showThemUser() {
-    
     this.themUserVisible = true;
   }
 
   async chotSo() {
-    this.listPokeristTamTinh.push({
-      userName: 'banker',
-      userId: 'banker',
-      fireStoreId: 'banker',
-      balance: this.bankerBalance,
-    });
     const result = await this.api.chotSo(this.tableDetail.createdTime.toDate() , this.listPokeristTamTinh, this.tableId);
     if(result === 'error') {
       this.message.error('Lỗi hệ thống!');
@@ -311,27 +307,14 @@ export class PokeTableDetailsComponent implements OnInit, OnDestroy {
 
   topPlayer: any = null;
   ajustmentForChotSo() {
-    this.bankerBalance = 0
     this.listPokeristTamTinh = JSON.parse(JSON.stringify(this.listPokerist));
-    for (const item of this.listPokeristTamTinh) {
-      if(item.balance>0) {
-        let forBanker = Math.ceil(item.balance * 0.02);
-        item.balance = item.balance - forBanker;
-        this.bankerBalance += forBanker; 
-        item.ajusted = true;
-      }
-    }
-
     this.topPlayer = this.listPokeristTamTinh.reduce((prev: any, current: any, idx: number)=>{
       if(idx === 0) {
         return current;
       } else {
         return (current.balance > prev.balance) ? current : prev
       }
-      // return;
-    })
-
-
+    });
   }
 
   calculateTotalBalance() {

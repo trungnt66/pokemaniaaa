@@ -1,3 +1,5 @@
+import { registerLocaleData } from '@angular/common';
+import vI from '@angular/common/locales/vi';
 import { Component } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -53,12 +55,9 @@ export class AppComponent {
   }
 
   ngOnInit() {
-    if(!this.header) {
-      this.goToRouter(this.routing.welcome);
-    }
-
     this.subscribeUserChange();
-    this.checkAndSetGlobalUser(this.userFbService.userFb)
+    this.checkAndSetGlobalUser(this.userFbService.userFb);
+    registerLocaleData(vI, 'vi-VN');
   }
 
   async checkAndSetGlobalUser(user: any | null) {

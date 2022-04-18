@@ -20,3 +20,15 @@ th,td, table, tr{
 .can-bank:hover {
   background-color: darkblue;
 }
+
+td:hover{
+  background-color: darkblue;
+}
+
+td {
+  transition: background-color 100ms;
+}
+
+td:active{
+  background-color: #1b5e20;
+}

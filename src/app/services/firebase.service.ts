@@ -447,7 +447,7 @@ export class FirebaseService {
         const [year, month, week] = doc.id.split('zzz');
         listReport.push({
           fireStoreId: doc.id,
-          name: `${year} - ${Number(month) + 1} - ${Number(week) + 1}`,
+          name: `Tuần ${Number(week) + 1} Tháng ${Number(month) + 1} Năm ${year}`,
         });
         return;
       });

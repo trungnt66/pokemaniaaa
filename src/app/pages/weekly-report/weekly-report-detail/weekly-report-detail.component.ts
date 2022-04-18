@@ -10,7 +10,7 @@ import AppConstant from '../../../constants/app.constant';
   styleUrls: ['./weekly-report-detail.component.css'],
 })
 export class WeeklyReportDetailComponent implements OnInit {
-  constructor(private route: ActivatedRoute, private api: FirebaseService, private user: UserLoginServiceService) {}
+  constructor(private route: ActivatedRoute, private api: FirebaseService, private user: UserLoginServiceService) { }
   public id: string | null = null;
   public detailDataSource: any = null;
   ngOnInit(): void {
@@ -19,26 +19,45 @@ export class WeeklyReportDetailComponent implements OnInit {
 
   public totalBalance = 0;
 
-  public async confirm(pokerist: any){
-    if(!this.id) {
+  public async confirm(pokerist: any) {
+    if (!this.id) {
       return;
     }
 
     debugger;
 
     const result = await this.api.bankedPokerist(pokerist.userId, this.id);
-    if(result === 'success') {
+    if (result === 'success') {
       this.initFlow();
     }
   };
 
-  public get isBanker (){
+  public copyToClipBoard(balance: any) {
+    var copyText = balance + '';
+  
+    /* Copy the text inside the text field */
+    navigator.clipboard.writeText(copyText);
+  }
+
+  public get isBanker() {
     return this.user.userFire.role === AppConstant.Roles.banker;
   };
 
   public canBank(userName: string, isBanked: boolean) {
     return userName !== 'banker' && this.isBanker && !isBanked;
   }
+
+  tableToExcel = (function () {
+    var uri = 'data:application/vnd.ms-excel;base64,'
+      , template = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40"><meta http-equiv="content-type" content="application/vnd.ms-excel; charset=UTF-8"><head><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>{worksheet}</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--></head><body><table>{table}</table></body></html>'
+      , base64 = function (s: any) { return window.btoa(unescape(encodeURIComponent(s))) }
+      , format = function (s: any, c: any) { return s.replace(/{(\w+)}/g, function (m: any, p: any) { return c[p]; }) }
+    return function (table: any, name: any) {
+      if (!table.nodeType) table = document.getElementById(table)
+      var ctx = { worksheet: name || 'Worksheet', table: table.innerHTML }
+      window.location.href = uri + base64(format(template, ctx))
+    }
+  })()
 
   public pokeristKey: any[] = [];
   async initFlow() {
@@ -54,8 +73,8 @@ export class WeeklyReportDetailComponent implements OnInit {
         item.createdTime = item.reatedTime.toDate();
       }
 
-      detailData.tables.sort((a:any,b:any)=>{
-        return a.createdTime > b.createdTime ? 1:-1
+      detailData.tables.sort((a: any, b: any) => {
+        return a.createdTime > b.createdTime ? 1 : -1
       })
     }
 
@@ -70,7 +89,7 @@ export class WeeklyReportDetailComponent implements OnInit {
           return item.tables[c].balance || 0;
         }
         return (item.tables[c].balance || 0) + (p || 0);
-      },0);
+      }, 0);
 
       this.totalBalance += item.totalBalance;
     }
