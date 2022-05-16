@@ -7,9 +7,7 @@
 .listPlayer {
   max-height: 70vh;
   overflow: auto;
-  max-width: 500px;
   margin: auto;
-  padding-right: 1rem;
 }
 
 .listPlayer>div {
