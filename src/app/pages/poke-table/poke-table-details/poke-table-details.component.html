@@ -7,14 +7,11 @@
 </div>
 <div [hidden]="themNhieuBanVisible">
   <div style="margin-bottom: 1rem; position: absolute; bottom: 20px; right: 20px; z-index: 100;">
-    <button *ngIf="!joinedTable" style="margin-right: 0.5rem" nz-button nzType="primary" nzShape="round"
-      (click)="joinTable(userService.userFb)">Sẵn sàng</button>
     <button *ngIf="canEdit" style="margin-right: 0.5rem" nz-button nzType="primary" nzShape="round"
-      (click)="showChotSo()">Chốt sổ</button>
+      (click)="showChotSo()">Chốt</button>
     <button *ngIf="canEdit" style="margin-right: 0.5rem" nz-button nzType="primary" nzShape="round"
-      (click)="showThemUser()">Thêm bạn chơi</button>
-    <button *ngIf="canEdit" nz-button nzType="primary" nzShape="round" (click)="themNhieuBanVisible = true"><i nz-icon
-        nzType="folder-add" nzTheme="outline"></i>Thêm nhiều bạn chơi</button>
+      (click)="showThemUser()">+ Player</button>
+    <button *ngIf="canEdit" nz-button nzType="primary" nzShape="round" (click)="themNhieuBanVisible = true">+ Playerss</button>
   </div>
 
   <h3>
