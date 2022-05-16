@@ -1,0 +1,7 @@
+<ng-container *ngIf="listUserNameChkBox && listUserNameChkBox.length">
+    <nz-checkbox-group class="checkbox-container" [(ngModel)]="listUserNameChkBox"></nz-checkbox-group>
+    <div style="margin-bottom: 4rem; position: absolute; bottom: 20px; right: 20px; z-index: 100;">
+      <button nz-button nzType="primary" nzShape="round" (click)="submit()"><i nz-icon
+          nzType="folder-add" nzTheme="outline"></i>Submit</button>
+    </div>
+</ng-container>

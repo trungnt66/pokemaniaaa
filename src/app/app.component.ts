@@ -19,7 +19,6 @@ export class AppComponent {
     private firebaseService: FirebaseService,
     private router: Router,
   ) {
-    console.log(this.isLoggedin);
   }
   loginForm: FormGroup | null = null;
   isLoggedin: boolean = false;

@@ -24,8 +24,6 @@ export class WeeklyReportDetailComponent implements OnInit {
       return;
     }
 
-    debugger;
-
     const result = await this.api.bankedPokerist(pokerist.userId, this.id);
     if (result === 'success') {
       this.initFlow();
@@ -84,7 +82,6 @@ export class WeeklyReportDetailComponent implements OnInit {
     for (const key of Object.keys(detailData.pokerist)) {
       const item = detailData.pokerist[key];
       item.totalBalance = Object.keys(item.tables || {}).reduce((p, c, i) => {
-        debugger;
         if (i === 0) {
           return item.tables[c].balance || 0;
         }

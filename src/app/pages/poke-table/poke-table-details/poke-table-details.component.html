@@ -1,78 +1,89 @@
-<div style="margin-bottom: 1rem; position: absolute; bottom: 20px; right: 20px; z-index: 100;">
-  <button *ngIf="!joinedTable" style="margin-right: 0.5rem" nz-button nzType="primary" nzShape="round"
-    (click)="joinTable(userService.userFb)"><i nz-icon nzType="folder-add" nzTheme="outline"></i>Sẵn sàng</button>
-  <button *ngIf="canEdit" style="margin-right: 0.5rem" nz-button nzType="primary" nzShape="round"
-    (click)="showChotSo()"><i nz-icon nzType="folder-add" nzTheme="outline"></i>Chốt sổ</button>
-  <button *ngIf="canEdit" nz-button nzType="primary" nzShape="round" (click)="showThemUser()"><i nz-icon
-      nzType="folder-add" nzTheme="outline"></i>Thêm bạn chơi</button>
-
+<div *ngIf="themNhieuBanVisible">
+  <app-add-multiple-user (onSave)="joinTableMultiple($event)" [listUserName]="listUserName"></app-add-multiple-user>
+  <div style="margin-bottom: 1rem; position: absolute; bottom: 20px; right: 20px; z-index: 100;">
+    <button nz-button nzType="primary" nzShape="round" (click)="themNhieuBanVisible = false"><i nz-icon
+        nzType="folder-add" nzTheme="outline"></i>Về bàn</button>
+  </div>
 </div>
+<div [hidden]="themNhieuBanVisible">
+  <div style="margin-bottom: 1rem; position: absolute; bottom: 20px; right: 20px; z-index: 100;">
+    <button *ngIf="!joinedTable" style="margin-right: 0.5rem" nz-button nzType="primary" nzShape="round"
+      (click)="joinTable(userService.userFb)">Sẵn sàng</button>
+    <button *ngIf="canEdit" style="margin-right: 0.5rem" nz-button nzType="primary" nzShape="round"
+      (click)="showChotSo()">Chốt sổ</button>
+    <button *ngIf="canEdit" style="margin-right: 0.5rem" nz-button nzType="primary" nzShape="round"
+      (click)="showThemUser()">Thêm bạn chơi</button>
+    <button *ngIf="canEdit" nz-button nzType="primary" nzShape="round" (click)="themNhieuBanVisible = true"><i nz-icon
+        nzType="folder-add" nzTheme="outline"></i>Thêm nhiều bạn chơi</button>
+  </div>
 
-<h3>
-  Total Player: {{listPokerist && listPokerist.length}}
-</h3>
-<nz-list nzBordered nzSize="small" style="margin-bottom: 8rem;" *ngIf="listPokerist && listPokerist.length">
-  <nz-list-item style="display: block;" *ngFor="let item of listPokerist">
-    <div style="margin-bottom: 0.5rem; text-align: center;">
-      <strong>
-        {{item.userName}}
-        <i *ngIf="item.isKey" nz-icon nzType="pushpin" nzTheme="outline"></i></strong> <br>
+  <h3>
+    Total Player: {{listPokerist && listPokerist.length}}
+  </h3>
+  <nz-list nzBordered nzSize="small" style="margin-bottom: 8rem;" *ngIf="listPokerist && listPokerist.length">
+    <nz-list-item style="display: block;" *ngFor="let item of listPokerist">
+      <div style="margin-bottom: 0.5rem; text-align: center;">
+        <strong>
+          {{item.userName}}
+          <i *ngIf="item.isKey" nz-icon nzType="pushpin" nzTheme="outline"></i></strong> <br>
         Buy In: {{item.buyInQuantity}} |
-      <ng-container *ngIf="item.returnMoney">
-        Trả: {{item.returnMoney}} chip |
-      </ng-container>
-      Balance: {{ item.balance }}
-      <ng-container *ngIf="canEdit">
-        <br>
-        <button style="margin-left: auto;" nz-button nzType="link" nzShape="round" nz-popconfirm
-          nzPopconfirmTitle="Load trụ mới cho {{item.userName}}?" nzPopconfirmPlacement="bottom"
-          (nzOnConfirm)="loadTru(item)">
-          + Trụ
-        </button>
-        <button style="margin-left: auto;" nz-button nzType="link" nzShape="round" nz-popconfirm
-          nzPopconfirmTitle="Trừ 1 trụ cho {{item.userName}}?" nzPopconfirmPlacement="bottom"
-          (nzOnConfirm)="giamTru(item)">
-          - Trụ
-        </button>
-        <button style="margin-left: auto;" nz-button nzType="link" nzShape="round" (click)="openPayBackModal(item)">
-          Trả Lại
-        </button>
-        <button *ngIf="currentUserIsKey && !item.isKey" style="margin-left: auto;" nz-button nzType="link"
-          nzShape="round" nz-popconfirm nzPopconfirmTitle="Thêm {{item.userName}} làm Key?"
-          nzPopconfirmPlacement="bottom" (nzOnConfirm)="nhuongKey(item.fireStoreId, item.userName)">
-          Thêm làm Key
-        </button>
-      </ng-container>
-    </div>
-  </nz-list-item>
-</nz-list>
+        <ng-container *ngIf="item.returnMoney">
+          Trả: {{item.returnMoney}} chip |
+        </ng-container>
+        Balance: {{ item.balance }}
+        <ng-container *ngIf="canEdit">
+          <br>
+          <button style="margin-left: auto;" nz-button nzType="link" nzShape="round" nz-popconfirm
+            nzPopconfirmTitle="Load trụ mới cho {{item.userName}}?" nzPopconfirmPlacement="bottom"
+            (nzOnConfirm)="loadTru(item)">
+            + Trụ
+          </button>
+          <button style="margin-left: auto;" nz-button nzType="link" nzShape="round" nz-popconfirm
+            nzPopconfirmTitle="Trừ 1 trụ cho {{item.userName}}?" nzPopconfirmPlacement="bottom"
+            (nzOnConfirm)="giamTru(item)">
+            - Trụ
+          </button>
+          <button style="margin-left: auto;" nz-button nzType="link" nzShape="round" (click)="openPayBackModal(item)">
+            Trả Lại
+          </button>
+          <!-- <br> -->
+          <!-- <button *ngIf="currentUserIsKey && !item.isKey" style="margin-left: auto;" nz-button nzType="link"
+            nzShape="round" nz-popconfirm nzPopconfirmTitle="Thêm {{item.userName}} làm Key?"
+            nzPopconfirmPlacement="bottom" (nzOnConfirm)="nhuongKey(item.fireStoreId, item.userName)">
+            Set là Key
+          </button> -->
+        </ng-container>
+      </div>
+    </nz-list-item>
+  </nz-list>
 
-<nz-modal [nzOkLoading]="loading" [(nzVisible)]="isVisible" nzTitle="Trả lại" (nzOnCancel)="payBackCancel()"
-  (nzOnOk)="payBack()">
-  <ng-container *nzModalContent>
-    Số chip:
-    <nz-input-number [(ngModel)]="payBackQuantity" [nzSize]="'small'" [nzStep]="50">
-    </nz-input-number>
-  </ng-container>
-</nz-modal>
+  <nz-modal [nzOkLoading]="loading" [(nzVisible)]="isVisible" nzTitle="Trả lại" (nzOnCancel)="payBackCancel()"
+    (nzOnOk)="payBack()">
+    <ng-container *nzModalContent>
+      Số chip:
+      <nz-input-number [(ngModel)]="payBackQuantity" [nzSize]="'small'" [nzStep]="50">
+      </nz-input-number>
+    </ng-container>
+  </nz-modal>
 
-<nz-modal [nzOkLoading]="loading" [(nzVisible)]="chotSoVisible" nzTitle="Tạm tính chốt sổ"
-  (nzOnCancel)="chotSoVisible = false" (nzOnOk)="chotSo()" [nzOkDisabled]="!!tableBalance">
-  <ng-container *nzModalContent>
-    <!-- {{!tableBalance}} -->
-    Tổng số: {{tableBalance}}
-  </ng-container>
-</nz-modal>
+  <nz-modal [nzOkLoading]="loading" [(nzVisible)]="chotSoVisible" nzTitle="Tạm tính chốt sổ"
+    (nzOnCancel)="chotSoVisible = false" (nzOnOk)="chotSo()" [nzOkDisabled]="!!tableBalance">
+    <ng-container *nzModalContent>
+      <!-- {{!tableBalance}} -->
+      Tổng số: {{tableBalance}}
+    </ng-container>
+  </nz-modal>
 
-<nz-modal [nzOkLoading]="loading" [(nzVisible)]="themUserVisible" nzTitle="Thêm Player"
-  (nzOnCancel)="addPlayerInTableCancel()" [nzOkDisabled]="!autoCompletePlayer" (nzOnOk)="addPlayerInTable()">
-  <ng-container *nzModalContent>
-    <div>
-      <input placeholder='Input Player Name' nz-input [(ngModel)]="autoCompletePlayer" [nzAutocomplete]="auto"
-        (ngModelChange)="autoCompletePlayerChanging($event)" />
-      <nz-autocomplete [nzDataSource]="listUserName" #auto></nz-autocomplete>
-    </div>
-    <span style="color: red;" [hidden]="!errorUserAlreadyInTable">{{errorUserAlreadyInTable}}</span>
-    <span style="color: yellow;" [hidden]="!warnUserNotInTable">{{warnUserNotInTable}}</span>
-  </ng-container>
-</nz-modal>
+  <nz-modal [nzOkLoading]="loading" [(nzVisible)]="themUserVisible" nzTitle="Thêm Player"
+    (nzOnCancel)="addPlayerInTableCancel()" [nzOkDisabled]="!autoCompletePlayer" (nzOnOk)="addPlayerInTable()">
+    <ng-container *nzModalContent>
+      <div>
+        <input placeholder='Input Player Name' nz-input [(ngModel)]="autoCompletePlayer" [nzAutocomplete]="auto"
+          (ngModelChange)="autoCompletePlayerChanging($event)" />
+        <nz-autocomplete [nzDataSource]="listUserName" #auto></nz-autocomplete>
+      </div>
+      <span style="color: red;" [hidden]="!errorUserAlreadyInTable">{{errorUserAlreadyInTable}}</span>
+      <span style="color: yellow;" [hidden]="!warnUserNotInTable">{{warnUserNotInTable}}</span>
+    </ng-container>
+  </nz-modal>
+</div>

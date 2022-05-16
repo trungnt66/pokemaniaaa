@@ -30,6 +30,7 @@ export class PokeTableDetailsComponent implements OnInit, OnDestroy {
   public joinedTable = false;
   public tableBalance = 0;
   public bankerBalance = 0;
+  public themNhieuBanVisible = false;
   public get canEdit() {
     return this.currentUserIsKey && !this.tableDetail.isEnd;
   }
@@ -51,7 +52,7 @@ export class PokeTableDetailsComponent implements OnInit, OnDestroy {
     }
   }
 
-  async initFlow(skipSubscription?:boolean) {
+  async initFlow(skipSubscription?: boolean) {
     if (!this.tableId) {
       return;
     }
@@ -63,7 +64,7 @@ export class PokeTableDetailsComponent implements OnInit, OnDestroy {
 
     // this.listPokerist = result.players;
     this.tableDetail = result.table;
-    if(!skipSubscription) {
+    if (!skipSubscription) {
       await this.subscribePokeristChange();
     }
   }
@@ -84,18 +85,18 @@ export class PokeTableDetailsComponent implements OnInit, OnDestroy {
       this.currentUserIsKey =
         keyUsers &&
         keyUsers.some((x: any) => x.userId === this.userService.userFb.id);
-        
+
       await this.subscribeUserChange();
     }, this.tableId);
   }
 
-  listUsers :any[] = []
+  listUsers: any[] = []
 
   public listUserName: string[] = []
-  
+
   unsubUser: any = null;
   async subscribeUserChange() {
-    if(this.unsubUser && typeof this.unsubUser === 'function') {
+    if (this.unsubUser && typeof this.unsubUser === 'function') {
       this.unsubUser();
     }
     this.unsubUser = await this.api.subscribeAllUser((users: any) => {
@@ -105,10 +106,9 @@ export class PokeTableDetailsComponent implements OnInit, OnDestroy {
   }
 
   autoCompletePlayerChanging(value: string) {
-    const listName: any[] = this.listUsers.map(x=>x.name) || []
-    debugger
-    this.listUserName = listName.filter((x:string)=>!value || (x && x.toLowerCase().includes(value.toLowerCase()))).filter(nX=> {
-      return this.listPokerist && !this.listPokerist.some((item:any)=>item.userName === nX);
+    const listName: any[] = this.listUsers.map(x => x.name) || []
+    this.listUserName = listName.filter((x: string) => !value || (x && x.toLowerCase().includes(value.toLowerCase()))).filter(nX => {
+      return this.listPokerist && !this.listPokerist.some((item: any) => item.userName === nX);
     });
     this.checkUserDaTrongBan();
   }
@@ -123,9 +123,12 @@ export class PokeTableDetailsComponent implements OnInit, OnDestroy {
     if (!item) {
       return 0;
     }
-    debugger;
+
+    const quantity = buyInQuantity !== null && buyInQuantity !== undefined
+      ? buyInQuantity
+      : item.buyInQuantity || 0;
     return (
-      -((buyInQuantity || 0) * this.tableDetail.buyInUnit) +
+      -(quantity * this.tableDetail.buyInUnit) +
       (payBackQuantity || item.returnMoney || 0)
     );
   }
@@ -207,7 +210,7 @@ export class PokeTableDetailsComponent implements OnInit, OnDestroy {
     this.isVisible = false;
   }
 
-  async joinTable(user:any = null) {
+  async joinTable(user: any = null) {
     const res = await this.api.joinTable(
       user,
       this.tableId,
@@ -224,6 +227,21 @@ export class PokeTableDetailsComponent implements OnInit, OnDestroy {
       this.themUserVisible = true;
     }, 500);
     // this.joinedTable = true;
+  }
+
+  async joinTableMultiple(users: string[]) {
+    this.api.multipleJoinTables(users, this.tableId,
+      this.tableDetail.buyInUnit).then(value => {
+        if (value === 'error') {
+          this.message.error('Lỗi hệ thống');
+          return;
+        } else {
+          this.message.success('Thêm players thành công');
+        }
+      }, error => {
+        this.message.error('Lỗi hệ thống');
+        return;
+      })
   }
 
   async nhuongKey(pokeristId: string, pokeristName: string) {
@@ -248,7 +266,7 @@ export class PokeTableDetailsComponent implements OnInit, OnDestroy {
   warnUserNotInTable = '';
   errorUserAlreadyInTable = '';
   checkUserDaTrongBan() {
-    if(this.listPokerist.some((x: any)=>x && x.userName && this.autoCompletePlayer && x.userName.toLowerCase().trim() === this.autoCompletePlayer.toLocaleLowerCase().trim())) {
+    if (this.listPokerist.some((x: any) => x && x.userName && this.autoCompletePlayer && x.userName.toLowerCase().trim() === this.autoCompletePlayer.toLocaleLowerCase().trim())) {
       this.errorUserAlreadyInTable = 'User đã ở trong bàn rồi';
       return;
     } else {
@@ -256,14 +274,14 @@ export class PokeTableDetailsComponent implements OnInit, OnDestroy {
     }
   }
   async addPlayerInTable() {
-    const isHasUser = this.listUsers.some(x=>x.name === this.autoCompletePlayer);
+    const isHasUser = this.listUsers.some(x => x.name === this.autoCompletePlayer);
     this.checkUserDaTrongBan();
-    if(this.errorUserAlreadyInTable) {
+    if (this.errorUserAlreadyInTable) {
       return;
     }
 
 
-    if(!isHasUser && !this.warnUserNotInTable) {
+    if (!isHasUser && !this.warnUserNotInTable) {
       this.warnUserNotInTable = 'Không tìm thấy user này bạn vẫn muốn thêm user này vào bàn?';
       return;
     }
@@ -274,11 +292,11 @@ export class PokeTableDetailsComponent implements OnInit, OnDestroy {
       name: this.autoCompletePlayer,
     }
 
-    if(this.warnUserNotInTable) {
+    if (this.warnUserNotInTable) {
       addUserResponse = await this.api.addUser(newUser);
     }
 
-    if(addUserResponse === 'error') {
+    if (addUserResponse === 'error') {
       return;
     }
 
@@ -288,7 +306,7 @@ export class PokeTableDetailsComponent implements OnInit, OnDestroy {
   }
 
   changingPlayer($event: any) {
-    
+
   }
 
   autoCompletePlayer = ''
@@ -320,8 +338,8 @@ export class PokeTableDetailsComponent implements OnInit, OnDestroy {
   }
 
   async chotSo() {
-    const result = await this.api.chotSo(this.tableDetail.createdTime.toDate() , this.listPokeristTamTinh, this.tableId);
-    if(result === 'error') {
+    const result = await this.api.chotSo(this.tableDetail.createdTime.toDate(), this.listPokeristTamTinh, this.tableId);
+    if (result === 'error') {
       this.message.error('Lỗi hệ thống!');
     } else {
       this.message.success('Chốt sổ thành công!');
@@ -334,8 +352,8 @@ export class PokeTableDetailsComponent implements OnInit, OnDestroy {
   topPlayer: any = null;
   ajustmentForChotSo() {
     this.listPokeristTamTinh = JSON.parse(JSON.stringify(this.listPokerist));
-    this.topPlayer = this.listPokeristTamTinh.reduce((prev: any, current: any, idx: number)=>{
-      if(idx === 0) {
+    this.topPlayer = this.listPokeristTamTinh.reduce((prev: any, current: any, idx: number) => {
+      if (idx === 0) {
         return current;
       } else {
         return (current.balance > prev.balance) ? current : prev

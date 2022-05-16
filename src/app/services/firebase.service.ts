@@ -22,7 +22,7 @@ export class FirebaseService {
   // Initialize Firebase
   public app = initializeApp(this.firebaseConfig);
   public db = getFirestore();
-  constructor() {}
+  constructor() { }
 
   public async getListUser() {
     const querySnapshot = await getDocs(collection(this.db, 'users'));
@@ -64,6 +64,39 @@ export class FirebaseService {
       return docRef.id;
     } catch (e) {
       // console.error('Error adding document: ', e);
+      return 'error';
+    }
+  }
+
+  public async multipleJoinTables(users: string[], tableId: string, buyInUnit: number) {
+    const batch = writeBatch(this.db);
+    if (!users || !users.length) {
+      return 'error';
+    }
+    try {
+      for (const user of users) {
+        if (!user) {
+          return 'error';
+        }
+
+        const newItem = {
+          userId: user,
+          userName: user,
+          buyInQuantity: 1,
+          isKey: false,
+          returnMoney: 0,
+          tableId: tableId,
+          balance: -buyInUnit,
+        };
+
+        // Set the value of 'NYC'
+        const pokeristDocRef = doc(this.db, "pokeristInTable", user + Date.now());
+        batch.set(pokeristDocRef, newItem);
+      }
+
+      // console.log('Document written with ID: ', docRef.id);
+      return batch.commit();
+    } catch (e) {
       return 'error';
     }
   }
@@ -463,11 +496,11 @@ export class FirebaseService {
         collection(this.db, 'weeklyReport'),
         orderBy('createdTime', 'desc')
       );
-      debugger
+      
       const querySnapshot = await getDocs(queryGetById);
       let listItem: any = {};
-      querySnapshot.forEach((doc) => {   
-        if(doc.data()['pokerist']) {
+      querySnapshot.forEach((doc) => {
+        if (doc.data()['pokerist']) {
           let weekRecord = doc.data()['pokerist'];
           const listPokerist = Object.keys(weekRecord);
           for (const iterator of listPokerist) {
@@ -475,19 +508,18 @@ export class FirebaseService {
             const tablesKeys = Object.keys(weekRecord[iterator]['tables']);
             tablesKeys.forEach(tableKey => {
               const tableItem = weekRecord[iterator]['tables'][tableKey];
-              if(pokeristData) {
+              if (pokeristData) {
                 listItem[iterator].totalQuantity += tableItem?.balance || 0;
               } else {
-                listItem[iterator] = {totalQuantity: tableItem?.balance || 0};
+                listItem[iterator] = { totalQuantity: tableItem?.balance || 0 };
               }
             });
-            
+
 
           }
         }
       });
 
-      console.log(listItem)
       return listItem;
     } catch (error) {
       return 'error';
@@ -495,7 +527,7 @@ export class FirebaseService {
   }
 
   async getReportDetail(id: string | null) {
-    if(!id) {
+    if (!id) {
       return 'error';
     }
 
@@ -506,12 +538,12 @@ export class FirebaseService {
 
       return snapshot.data();
     } catch (error) {
-      return 'error'        
+      return 'error'
     }
   }
 
-  async bankedPokerist (pokeristId: any, reportId: string) {
-    if(!reportId || !pokeristId) {
+  async bankedPokerist(pokeristId: any, reportId: string) {
+    if (!reportId || !pokeristId) {
       return 'error';
     }
 
@@ -522,7 +554,7 @@ export class FirebaseService {
 
       const snapshot = await getDoc(docref);
 
-      if(snapshot.exists()) {
+      if (snapshot.exists()) {
         const newAllPokerist = snapshot.data()['pokerist'];
         newAllPokerist[pokeristId]['isBanked'] = true;
         await updateDoc(docref, {
@@ -530,13 +562,13 @@ export class FirebaseService {
         });
 
         return 'success';
-      } 
+      }
       else {
         return 'error';
       }
 
     } catch (error) {
-      return 'error'        
+      return 'error'
     }
   }
 }
