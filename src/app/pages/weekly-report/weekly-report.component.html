@@ -12,10 +12,13 @@
   </nz-tab>
   <nz-tab nzTitle="Top Player">
     <div class="listPlayer">
-      <div *ngFor="let item of topPlayer">
-        <span>{{item.name}}</span>
-        <span>{{item.totalQuantity}}</span>
-      </div>
+      <ng-container *ngFor="let item of topPlayer; let i = index" >
+        <div [style.backgroundColor]="rainbowColor[i]">
+          <span>{{item.name}}</span>
+          <span>{{item.totalQuantity}}</span>
+        </div>
+      </ng-container>
+      
     </div>
   </nz-tab>
 </nz-tabset>

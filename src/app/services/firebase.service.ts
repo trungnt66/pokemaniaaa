@@ -504,12 +504,11 @@ export class FirebaseService {
           let weekRecord = doc.data()['pokerist'];
           const listPokerist = Object.keys(weekRecord);
           for (const iterator of listPokerist) {
-            const pokeristData = listItem[iterator];
             const tablesKeys = Object.keys(weekRecord[iterator]['tables']);
             tablesKeys.forEach(tableKey => {
               const tableItem = weekRecord[iterator]['tables'][tableKey];
-              if (pokeristData) {
-                listItem[iterator].totalQuantity += tableItem?.balance || 0;
+              if (listItem[iterator]) {
+                listItem[iterator].totalQuantity = listItem[iterator].totalQuantity + (tableItem?.balance || 0);
               } else {
                 listItem[iterator] = { totalQuantity: tableItem?.balance || 0 };
               }

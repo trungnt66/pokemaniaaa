@@ -12,6 +12,24 @@
   padding-right: 1rem;
 }
 
+.listPlayer>div {
+  border-bottom: 1px solid white;
+  font-weight: bold;
+  color: black;
+  padding: 0.5rem;
+}
+
+.listPlayer>div>span {
+  background-color: #ffffff84;
+  width: 100%;
+  padding: 0.5rem;
+  margin: 2px;
+}
+
+.listPlayer>div>span:first-child {
+  text-align: right;
+}
+
 .listPlayer>div:not(:last-child) {
   border-bottom: 1px solid white;
 }
