@@ -8,9 +8,10 @@ import { FirebaseService } from 'src/app/services/firebase.service';
   styleUrls: ['./weekly-report.component.css'],
 })
 export class WeeklyReportComponent implements OnInit {
-  constructor(private api: FirebaseService, private router: Router) {}
+  constructor(private api: FirebaseService, private router: Router) { }
 
   public listReport: any = [];
+  public topPlayer: any = [];
 
   ngOnInit(): void {
     this.initFlow();
@@ -18,8 +19,15 @@ export class WeeklyReportComponent implements OnInit {
 
   async initFlow() {
     const res = await this.api.getListReports();
-    if(res !== 'error') {
+    const res2 = await this.api.getTopPlayerAllTheTime();
+    if (res !== 'error') {
       this.listReport = res;
+    }
+
+    if (res2 !== 'error' && typeof res2 === 'object') {
+      this.topPlayer = Object.keys(res2).map(x => { return { name: x, ...res2[x] } }).sort((a, b) => {
+        return a.totalQuantity > b.totalQuantity ? -1 : 1;
+      });
     }
   }
 

@@ -27,7 +27,12 @@
         <button style="margin-left: auto;" nz-button nzType="link" nzShape="round" nz-popconfirm
           nzPopconfirmTitle="Load trụ mới cho {{item.userName}}?" nzPopconfirmPlacement="bottom"
           (nzOnConfirm)="loadTru(item)">
-          Load Trụ
+          + Trụ
+        </button>
+        <button style="margin-left: auto;" nz-button nzType="link" nzShape="round" nz-popconfirm
+          nzPopconfirmTitle="Trừ 1 trụ cho {{item.userName}}?" nzPopconfirmPlacement="bottom"
+          (nzOnConfirm)="giamTru(item)">
+          - Trụ
         </button>
         <button style="margin-left: auto;" nz-button nzType="link" nzShape="round" (click)="openPayBackModal(item)">
           Trả Lại

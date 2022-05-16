@@ -1,0 +1,17 @@
+.listPlayer>div {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem 0;
+}
+
+.listPlayer {
+  max-height: 70vh;
+  overflow: auto;
+  max-width: 500px;
+  margin: auto;
+  padding-right: 1rem;
+}
+
+.listPlayer>div:not(:last-child) {
+  border-bottom: 1px solid white;
+}

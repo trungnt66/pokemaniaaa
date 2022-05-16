@@ -125,7 +125,7 @@ export class PokeTableDetailsComponent implements OnInit, OnDestroy {
     }
     debugger;
     return (
-      -((buyInQuantity || item.buyInQuantity) * this.tableDetail.buyInUnit) +
+      -((buyInQuantity || 0) * this.tableDetail.buyInUnit) +
       (payBackQuantity || item.returnMoney || 0)
     );
   }
@@ -153,6 +153,32 @@ export class PokeTableDetailsComponent implements OnInit, OnDestroy {
       this.message.success('Load trụ thành công cho ' + item.userName);
     } else {
       this.message.error('Load trụ thất bại');
+    }
+  }
+
+  async giamTru(item: any) {
+    if (!item || !item.fireStoreId || !item.buyInQuantity) {
+      return;
+    }
+
+    const buyInQuanNew = item.buyInQuantity - 1;
+    const newBalance = this.calculateBalance(
+      item,
+      this.tableDetail.buyInUnit,
+      0,
+      buyInQuanNew
+    );
+
+    const result = await this.api.loadTru(
+      item.fireStoreId,
+      buyInQuanNew,
+      newBalance
+    );
+    if (result === 'success') {
+      item.buyInQuantity = buyInQuanNew;
+      this.message.success('Trừ trụ thành công cho ' + item.userName);
+    } else {
+      this.message.error('Trừ trụ thất bại');
     }
   }
 

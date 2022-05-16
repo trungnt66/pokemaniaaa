@@ -27,7 +27,7 @@ export class FirebaseService {
   public async getListUser() {
     const querySnapshot = await getDocs(collection(this.db, 'users'));
     querySnapshot.forEach((doc) => {
-      console.log(`${doc.id} => ${doc.data()}`);
+      // console.log(`${doc.id} => ${doc.data()}`);
     });
   }
 
@@ -43,7 +43,7 @@ export class FirebaseService {
         user = { ...doc.data(), fireStoreId: doc.id };
         return;
       });
-      console.log('--------', user);
+      // console.log('--------', user);
       return user;
     } catch (error) {
       return 'error';
@@ -60,10 +60,10 @@ export class FirebaseService {
         role: AppConstant.Roles.user,
       });
 
-      console.log('Document written with ID: ', docRef.id);
+      // console.log('Document written with ID: ', docRef.id);
       return docRef.id;
     } catch (e) {
-      console.error('Error adding document: ', e);
+      // console.error('Error adding document: ', e);
       return 'error';
     }
   }
@@ -90,9 +90,9 @@ export class FirebaseService {
           balance: -buyIn,
         }
       );
-      console.log('Document written with ID: ', docRef.id, pokeristDocRef.id);
+      // console.log('Document written with ID: ', docRef.id, pokeristDocRef.id);
     } catch (e) {
-      console.error('Error adding document: ', e);
+      // console.error('Error adding document: ', e);
     }
   }
 
@@ -427,10 +427,10 @@ export class FirebaseService {
         // const newPopulation = sfDoc.data().population + 1;
         // transaction.update(sfDocRef, { population: newPopulation });
       });
-      console.log('Transaction successfully committed!');
+      // console.log('Transaction successfully committed!');
       return 'success';
     } catch (e) {
-      console.error(e);
+      // console.error(e);
       return 'error';
     }
   }
@@ -452,6 +452,43 @@ export class FirebaseService {
         return;
       });
       return listReport;
+    } catch (error) {
+      return 'error';
+    }
+  }
+
+  async getTopPlayerAllTheTime() {
+    try {
+      const queryGetById = query(
+        collection(this.db, 'weeklyReport'),
+        orderBy('createdTime', 'desc')
+      );
+      debugger
+      const querySnapshot = await getDocs(queryGetById);
+      let listItem: any = {};
+      querySnapshot.forEach((doc) => {   
+        if(doc.data()['pokerist']) {
+          let weekRecord = doc.data()['pokerist'];
+          const listPokerist = Object.keys(weekRecord);
+          for (const iterator of listPokerist) {
+            const pokeristData = listItem[iterator];
+            const tablesKeys = Object.keys(weekRecord[iterator]['tables']);
+            tablesKeys.forEach(tableKey => {
+              const tableItem = weekRecord[iterator]['tables'][tableKey];
+              if(pokeristData) {
+                listItem[iterator].totalQuantity += tableItem?.balance || 0;
+              } else {
+                listItem[iterator] = {totalQuantity: tableItem?.balance || 0};
+              }
+            });
+            
+
+          }
+        }
+      });
+
+      console.log(listItem)
+      return listItem;
     } catch (error) {
       return 'error';
     }
