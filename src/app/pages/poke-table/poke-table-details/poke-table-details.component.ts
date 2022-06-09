@@ -338,6 +338,7 @@ export class PokeTableDetailsComponent implements OnInit, OnDestroy {
   }
 
   async chotSo() {
+    this.loading = true;
     const result = await this.api.chotSo(this.tableDetail.createdTime.toDate(), this.listPokeristTamTinh, this.tableId);
     if (result === 'error') {
       this.message.error('Lỗi hệ thống!');
@@ -347,6 +348,7 @@ export class PokeTableDetailsComponent implements OnInit, OnDestroy {
     }
 
     this.chotSoVisible = false;
+    this.loading = false;
   }
 
   topPlayer: any = null;

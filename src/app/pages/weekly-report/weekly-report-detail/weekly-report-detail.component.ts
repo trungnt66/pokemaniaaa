@@ -62,6 +62,7 @@ export class WeeklyReportDetailComponent implements OnInit {
     this.id = this.route.snapshot.params['id'];
 
     const detailData: any = await this.api.getReportDetail(this.id);
+    console.log(detailData.tables);
     if (detailData === 'error') {
       return;
     }
