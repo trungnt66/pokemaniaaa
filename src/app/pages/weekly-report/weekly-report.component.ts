@@ -54,8 +54,9 @@ export class WeeklyReportComponent implements OnInit {
       this.topPlayer = Object.keys(res2).map(x => { return { name: x, ...res2[x] } }).sort((a, b) => {
         return a.totalQuantity > b.totalQuantity ? -1 : 1;
       });
-      
+      this.topPlayer = this.topPlayer.reverse();
       this.rainbowColor = this.createRainBowByLength(this.topPlayer.length);
+      this.rainbowColor = this.rainbowColor.reverse();
       console.log()
     }
   }
