@@ -11,6 +11,7 @@ import { NzMessageModule } from 'ng-zorro-antd/message';
 import { NzModalModule } from 'ng-zorro-antd/modal';
 import { NzPopconfirmModule } from 'ng-zorro-antd/popconfirm';
 import { IconsProviderModule } from 'src/app/icons-provider.module';
+import { TeamsMessageModule } from 'src/app/services/teams-message/teams-message.module';
 import { AddMultipleUserComponent } from './poke-table-details/add-multiple-user/add-multiple-user.component';
 import { PokeTableDetailsComponent } from './poke-table-details/poke-table-details.component';
 import { PokeTableRoutingModule } from './poke-table-routing.module';
@@ -32,6 +33,7 @@ import { PokeTableComponent } from './poke-table.component';
     NzCheckboxModule,
     FormsModule,
     NzAutocompleteModule,
+    TeamsMessageModule,
   ]
 })
 export class PokeTableModule { }

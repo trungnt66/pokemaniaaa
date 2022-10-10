@@ -1,7 +1,9 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { NzMessageService } from 'ng-zorro-antd/message';
+import { Fact } from 'src/app/interfaces/teams-message.interface';
 import { FirebaseService } from 'src/app/services/firebase.service';
+import { TeamsMessageService } from 'src/app/services/teams-message/teams-message.service';
 import { UserLoginServiceService } from 'src/app/services/user-login-service.service';
 
 @Component({
@@ -14,7 +16,8 @@ export class PokeTableDetailsComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private api: FirebaseService,
     private message: NzMessageService,
-    public userService: UserLoginServiceService
+    public userService: UserLoginServiceService,
+    private teamsMessage: TeamsMessageService,
   ) {
     this.userRef = userService.userFb;
   }
@@ -337,6 +340,34 @@ export class PokeTableDetailsComponent implements OnInit, OnDestroy {
     this.themUserVisible = true;
   }
 
+
+  private dummyData: any = {
+    "@type": "MessageCard",
+    "@context": "http://schema.org/extensions",
+    "themeColor": "0076D7",
+    "summary": "Larry Bryant created a new task",
+    "sections": [{
+      "activityTitle": "Larry Bryant created a new task",
+      "activitySubtitle": "On Project Tango",
+      "activityImage": "https://teamsnodesample.azurewebsites.net/static/img/image5.png",
+      "facts": [{
+        "name": "Assigned to",
+        "value": "Unassigned"
+      }, {
+        "name": "Due date",
+        "value": "Mon May 01 2017 17:07:18 GMT-0700 (Pacific Daylight Time)"
+      }, {
+        "name": "Status",
+        "value": "Not started"
+      }],
+      "markdown": true,
+    }]
+  }
+
+  getDateTimeString(date: Date) {
+    return date.toLocaleDateString() + '  ' + date.toLocaleTimeString()
+  }
+
   async chotSo() {
     this.loading = true;
     const result = await this.api.chotSo(this.tableDetail.createdTime.toDate(), this.listPokeristTamTinh, this.tableId);
@@ -347,6 +378,18 @@ export class PokeTableDetailsComponent implements OnInit, OnDestroy {
       this.initFlow(true);
     }
 
+    // current tables
+    const factsCurrentTable: Fact[] = this.listPokeristTamTinh.map((el: any) => ({ name: el.userName, value: el.balance }))
+    const title = "Tổng kết bàn"
+    const sectionCurrentTable = this.teamsMessage.getSectionsTemplate(
+      title,
+      this.getDateTimeString(this.tableDetail.createdTime.toDate()), factsCurrentTable);
+    const mainMessage = this.teamsMessage.getMainsTemplate("Thông báo", sectionCurrentTable);
+
+    this.teamsMessage.postMessage(mainMessage).subscribe(data => {
+      console.log('data');
+    });
+    
     this.chotSoVisible = false;
     this.loading = false;
   }

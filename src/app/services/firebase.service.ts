@@ -4,20 +4,14 @@ import {
   addDoc, collection, doc,
   getDoc, getDocs, getFirestore, onSnapshot, orderBy, query, runTransaction, updateDoc, where, writeBatch
 } from 'firebase/firestore';
+import { environment } from 'src/environments/environment';
 import AppConstant from '../constants/app.constant';
 
 @Injectable({
   providedIn: 'root',
 })
 export class FirebaseService {
-  public readonly firebaseConfig = {
-    apiKey: 'AIzaSyC-bdbWfZZb48o3q1v4cjlrnxiYOybMQco',
-    authDomain: 'trspokemania.firebaseapp.com',
-    projectId: 'trspokemania',
-    storageBucket: 'trspokemania.appspot.com',
-    messagingSenderId: '485587655756',
-    appId: '1:485587655756:web:3407823b74de996b7668e9',
-  };
+  public readonly firebaseConfig = environment.firebaseConfig;
 
   // Initialize Firebase
   public app = initializeApp(this.firebaseConfig);
